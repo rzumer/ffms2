@@ -1356,7 +1356,9 @@ typedef enum FFMS_Stereo3DType {
     FFMS_S3D_TYPE_CHECKERBOARD,
     FFMS_S3D_TYPE_SIDEBYSIDE_QUINCUNX,
     FFMS_S3D_TYPE_LINES,
-    FFMS_S3D_TYPE_COLUMNS
+    FFMS_S3D_TYPE_COLUMNS,
+    FFMS_S3D_TYPE_UNSPEC, // may move to 0 with a future libavutil version update
+    FFMS_S3D_TYPE_LAYERED
 } FFMS_Stereo3DType;
 ```
 Identifies the type of stereo 3D the video is.
