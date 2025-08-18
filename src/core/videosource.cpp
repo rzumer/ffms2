@@ -930,11 +930,13 @@ bool FFMS_VideoSource::SeekTo(int n, int SeekOffset) {
 
         if (SeekMode == 0) {
             if (n < CurrentFrame) {
+                LastSeekFrameNum = n;
                 Seek(Frames[0].OriginalPos);
             }
         } else {
             // 10 frames is used as a margin to prevent excessive seeking since the predicted best keyframe isn't always selected by avformat
             if (ForceSeek || n < CurrentFrame || TargetFrame > CurrentFrame + 10 || (SeekMode == 3 && n > CurrentFrame + 10)) {
+                LastSeekFrameNum = n;
                 Seek(TargetFrame);
                 return true;
             }
@@ -968,10 +970,18 @@ FFMS_Frame *FFMS_VideoSource::GetFrame(int n) {
         int64_t StartTime = AV_NOPTS_VALUE, FilePos = -1;
         bool Skipped = (((unsigned) CurrentFrame < Frames.size()) && Frames[CurrentFrame].Skipped());
         if (HasSeeked || !Skipped) {
-            if (WasSkipped)
+            if (WasSkipped) {
                 WasSkipped = false;
-            else
+            } else {
                 DecodeNextFrame(StartTime, FilePos);
+                if (FilePos < 0 && n != LastSeekFrameNum) {
+                    // This can happen if we received an EOF error prematurely on consecutive frame reads
+                    // with broken fragments. Trying to seek again can bypass those fragments.
+                    Stage = DecodeStage::INITIALIZE_SOURCE; // Forces a seek in SeekTo()
+                    Seek = true;
+                    continue;
+                }
+            }
         }
 
         if (!HasSeeked)

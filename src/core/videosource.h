@@ -125,6 +125,7 @@ private:
     bool SeekByPos = false;
     bool HaveSeenInterlacedFrame = false;
     bool IsLayered = false;
+    int LastSeekFrameNum = -1;
 
     void ReAdjustOutputFormat(AVFrame *Frame);
     FFMS_Frame *OutputFrame(AVFrame *Frame);
