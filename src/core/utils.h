@@ -99,7 +99,7 @@ class OptionMapper {
 
     template<typename T>
     class OptionMapperImpl : public OptionMapperBase {
-        T(FFMS_Struct::*ptr);
+        T FFMS_Struct::*ptr;
         const char *name;
 
     public:
